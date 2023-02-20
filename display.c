@@ -59,12 +59,12 @@ void DISP_Init(void)
 
     /* Creat display queue */
      /* Add your code here! */
-
+     qh=xQueueCreate(20,sizeof(char[30]));
      /* End of your code! */
 
     /* Create display task */
      /* Add your code here! */
-
+     xTaskCreate(prvDISP_Task, (signed char*)"disp",1024,NULL,DISP_TASK_PRIORITY,NULL);
      /* End of your code! */
 }
 
@@ -82,7 +82,8 @@ static void prvDISP_Task(void * pvParameters)
     {
         /* Wait for message from meter task  */
         /* Add your code here! */
-
+    	while(!(uxQueueMessagesWaiting(qh)));
+    	xQueueReceive(qh,&message,0);
         /* End of your code! */
 
         if (message.type == MET2DISP_UpdateWindow)
