@@ -1,6 +1,8 @@
 #include "meter.h"
 #include <stdlib.h>
 #include <MyFreeRTOS.h>
+#include "semphr.h"
+#include "timers.h"
 
 #define MAX_IC_METER_READING_MWATT  (6000)
 #define SECONDS_IN_HOUR             (3600)
@@ -20,7 +22,8 @@ static uint8_t prvMET_Seconds;
 
 /* Define handles for meter timer, cofiguration data mutex, measurement data mutex */
 /* Add your code here! */
-
+SemaphoreHandle_t configData_mutex, measureData_mutex;
+TimerHandle_t meter_Timer;
 /* End of your code! */
 
 
@@ -36,12 +39,14 @@ void MET_Init(void)
     
     /* Create configuration data mutex and metering measurement mutex*/
     /* Add your code here! */
-
+    configData_mutex = xSemaphoreCreateMutex();
+    measureData_mutex = xSemaphoreCreateMutex();
     /* End of your code! */
 
     
     /* Protect reading configuration data from eeprom */
     /* Add your code here! */
+    xSemaphoreTake(configData_mutex, 0);
 
     prvMET_Configuration.zero = 0;
     prvMET_Configuration.gain = 1;
@@ -49,11 +54,12 @@ void MET_Init(void)
     prvMET_Configuration.co2_rate = 99;
     prvMET_Configuration.bill_cycle = 90;
 
+    xSemaphoreGive(configData_mutex);
     /* End of your code! */
 
     /* Protect meter time and measurement data initialization */
     /* Add your code here! */
-
+    xSemaphoreTake(measureData_mutex, 0);
     
     prvMET_TimeInHours = 0;
     prvMET_Seconds = 0;
@@ -69,11 +75,12 @@ void MET_Init(void)
     prvMET_Measurement.float_cost = ((float)prvMET_Configuration.cost) / 1000;
     prvMET_Measurement.kwh_per_hour_cost = prvMET_Measurement.kwh_per_hour * prvMET_Measurement.float_cost;
 
+    xSemaphoreGive(measureData_mutex);
     /* End of your code! */
 
     /* Create periodic timer every 1 second  */
     /* Add your code here! */
-
+    meter_Timer = xTimerCreate("Meter_Timer", pdMS_TO_TICKS(1000), 1, 100, NULL);
     /* End of your code! */
 
     /* Set initial window */
@@ -85,7 +92,7 @@ void MET_Init(void)
 
     /* Create meter task */
     /* Add your code here! */
-
+    xTaskCreate(prvMET_Task, "Meter_Task", 100, (void *) 1, tskIDLE_PRIORITY, NULL);
     /* End of your code! */
 
 }
@@ -102,7 +109,7 @@ static void prvMET_Task(void* pvParameters)
 
     /* Start meter timer */
     /* Add your code here! */
-
+    xTimerStart(meter_Timer, 0);
     /* End of your code! */
 
     for (;;)
@@ -116,6 +123,7 @@ void MET_GetConfiguration(tMET_Config * configuration)
 {
     /* Protect reading configuration data by any other task */
     /* Add your code here! */
+	xSemaphoreTake(configData_mutex, 0);
 
     configuration->zero = prvMET_Configuration.zero;
     configuration->gain = prvMET_Configuration.gain;
@@ -123,6 +131,7 @@ void MET_GetConfiguration(tMET_Config * configuration)
     configuration->co2_rate = prvMET_Configuration.co2_rate;
     configuration->bill_cycle = prvMET_Configuration.bill_cycle;
 
+    xSemaphoreGive(configData_mutex);
     /* End of your code! */
 }
 
@@ -148,7 +157,7 @@ static void prvMET_UpdateTime(void)
 {
     /* Make this function thread-safe */
     /* Add your code here! */
-
+	taskENTER_CRITICAL();
     prvMET_Seconds++;
 
     if (prvMET_Seconds == 60)
@@ -156,7 +165,7 @@ static void prvMET_UpdateTime(void)
         prvMET_Seconds = 0;
         prvMET_TimeInHours = prvMET_TimeInHours + ((float)1) / 60;
     }
-
+    taskEXIT_CRITICAL();
     /* End of your code! */
 }
 
@@ -164,7 +173,7 @@ static void prvMET_UpdateMeasurement(void)
 {
     /* Make this function thread-safe */
     /* Add your code here! */
-
+	taskENTER_CRITICAL();
     /* Read metering IC */
     prvMET_Measurement.watts = ((float)(rand() % MAX_IC_METER_READING_MWATT))/ MWATTS_TO_WATTS;
     
@@ -194,6 +203,7 @@ static void prvMET_UpdateMeasurement(void)
     prvMET_Measurement.float_cost = ((float)prvMET_Configuration.cost) / 1000;
     prvMET_Measurement.kwh_per_hour_cost = prvMET_Measurement.kwh_per_hour * prvMET_Measurement.float_cost;
 
+    taskEXIT_CRITICAL();
     /* End of your code! */
 }
 
