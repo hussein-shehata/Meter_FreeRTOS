@@ -104,7 +104,7 @@ static void prvMET_Task(void* pvParameters)
 
     /* Sync all tasks start  */
     /* Add your code here! */
-
+    /*--------------------------------h3mlha lsa ------------------------------*/
     /* End of your code! */
 
     /* Start meter timer */
@@ -148,6 +148,7 @@ static void prvMET_TimerCallback(TimerHandle_t xTimerHandle)
 
     /* Send metering data to display */
     /* Add your code here! */
+        /*--------------------------------h3mlha lsa ------------------------------*/
 
     /* End of your code! */
 
@@ -214,12 +215,14 @@ static void prvMET_UpdateMeter(void)
     tMET2DISP_Message message;
     /* Wait for a message from oush button task on the message buffer */
     /* Add your code here! */
+        /*--------------------------------h3mlha lsa ------------------------------*/
 
     /* End of your code! */
     if (mbMessage == 'c')
     {
         /* Protect measurement data during clearing/sending */
         /* Add your code here! */
+        xSemaphoreTake(configData_mutex, 0);
         /* Clear measurements */
 
         prvMET_Measurement.watts = 0;
@@ -242,6 +245,7 @@ static void prvMET_UpdateMeter(void)
         message.data.measurement.watts_max = prvMET_Measurement.watts_max;
         message.data.measurement.watts_min = prvMET_Measurement.watts_min;
 
+        xSemaphoreGive(configData_mutex, 0);
         /* End of your code! */
 
         /* Send measurement data to display */
