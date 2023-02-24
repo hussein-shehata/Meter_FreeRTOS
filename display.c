@@ -75,7 +75,7 @@ static void prvDISP_Task(void * pvParameters)
     (void)pvParameters;
     /* Sync all tasks start  */
     /* Add your code here! */
-    xEventGroupSync( xSyncEventGroup, ebBIT_DISP, ebALL_SYNC_BITS, portMAX_DELAY );
+    xEventGroupSync( xSyncEventGroup, ebBIT_DISP, ebALL_SYNC_BITS, 0xffffffffUL );
     /* End of your code! */
 
     for (;;)
