@@ -3,7 +3,6 @@
 #include "display.h"
 #include <MyFreeRTOS.h>
 
-
 int main(void)
 {
 	/* Initialize heap for FreeRTOS and application */
@@ -16,7 +15,7 @@ int main(void)
 
 	/* Start FreeRTOS scheduler */
 	/* Add your code here! */
-
+	vTaskStartScheduler();
 	/* End of your code! */
 	return 0;
 }

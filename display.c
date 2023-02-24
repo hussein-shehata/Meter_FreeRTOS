@@ -53,13 +53,13 @@ static void prvDISP_Task(void* pvParameters);
 void DISP_Init(void)
 {
     /* Get meter configuration */
-    MET_GetConfiguration(&prvDISP_MeterConfiguration);
+     MET_GetConfiguration(&prvDISP_MeterConfiguration);
 
      prvDISP_Start();
 
     /* Creat display queue */
      /* Add your code here! */
-     qh=xQueueCreate(20,sizeof(char[30]));
+     xMET2DISP_Queue=xQueueCreate(qMET2DISP_LENGTH_MESSAGES,sizeof(char[30]));
      /* End of your code! */
 
     /* Create display task */
@@ -75,7 +75,7 @@ static void prvDISP_Task(void * pvParameters)
     (void)pvParameters;
     /* Sync all tasks start  */
     /* Add your code here! */
-
+    xEventGroupSync( xEventBits, (1<<2), ALL_SYNC_BITS, portMAX_DELAY );
     /* End of your code! */
 
     for (;;)
