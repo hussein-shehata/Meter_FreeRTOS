@@ -92,7 +92,7 @@ void MET_Init(void)
 
     /* Create meter task */
     /* Add your code here! */
-    xTaskCreate(prvMET_Task, "Meter_Task", 100, (void *) 1, tskIDLE_PRIORITY, NULL);
+    xTaskCreate(prvMET_Task, "Meter_Task", 100, (void *) 1, METER_TASK_PRIORITY, NULL);
     /* End of your code! */
 
 }
