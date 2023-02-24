@@ -53,7 +53,7 @@ static void prvDISP_Task(void* pvParameters);
 void DISP_Init(void)
 {
     /* Get meter configuration */
-    MET_GetConfiguration(&prvDISP_MeterConfiguration);
+     MET_GetConfiguration(&prvDISP_MeterConfiguration);
 
      prvDISP_Start();
 
@@ -75,7 +75,7 @@ static void prvDISP_Task(void * pvParameters)
     (void)pvParameters;
     /* Sync all tasks start  */
     /* Add your code here! */
-
+    xEventGroupSync( xEventBits, (1<<2), ALL_SYNC_BITS, portMAX_DELAY );
     /* End of your code! */
 
     for (;;)
