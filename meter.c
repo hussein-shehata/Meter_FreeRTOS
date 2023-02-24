@@ -80,7 +80,7 @@ void MET_Init(void)
 
     /* Create periodic timer every 1 second  */
     /* Add your code here! */
-    meter_Timer = xTimerCreate("Meter_Timer", pdMS_TO_TICKS(1000), 1, 100, NULL);
+    meter_Timer = xTimerCreate("Meter_Timer", pdMS_TO_TICKS(1000), 1, 100, prvMET_TimerCallback);
     /* End of your code! */
 
     /* Set initial window */
@@ -148,7 +148,16 @@ static void prvMET_TimerCallback(TimerHandle_t xTimerHandle)
 
     /* Send metering data to display */
     /* Add your code here! */
-        /*--------------------------------h3mlha lsa ------------------------------*/
+    message.type = MET2DISP_UpdateMetertingData;
+    message.data.measurement.calc_hours = prvMET_Measurement.calc_hours;
+    message.data.measurement.float_cost = prvMET_Measurement.float_cost;
+    message.data.measurement.kwh = prvMET_Measurement.kwh;
+    message.data.measurement.kwh_per_hour = prvMET_Measurement.kwh_per_hour;
+    message.data.measurement.kwh_per_hour_cost = prvMET_Measurement.kwh_per_hour_cost;
+    message.data.measurement.watts = prvMET_Measurement.watts;
+    message.data.measurement.watts_max = prvMET_Measurement.watts_max;
+    message.data.measurement.watts_min = prvMET_Measurement.watts_min;
+
 
     /* End of your code! */
 
@@ -213,16 +222,18 @@ static void prvMET_UpdateMeter(void)
 {
     char mbMessage = '\0';
     tMET2DISP_Message message;
-    /* Wait for a message from oush button task on the message buffer */
+    /* Wait for a message from push button task on the message buffer */
     /* Add your code here! */
-        /*--------------------------------h3mlha lsa ------------------------------*/
-
+    while(mbMessage == '\0')
+    {
+    	// Infinite loop to wait for message from the push button
+    }
     /* End of your code! */
     if (mbMessage == 'c')
     {
         /* Protect measurement data during clearing/sending */
         /* Add your code here! */
-        xSemaphoreTake(configData_mutex, 0);
+        xSemaphoreTake(measureData_mutex, 0);
         /* Clear measurements */
 
         prvMET_Measurement.watts = 0;
@@ -245,7 +256,7 @@ static void prvMET_UpdateMeter(void)
         message.data.measurement.watts_max = prvMET_Measurement.watts_max;
         message.data.measurement.watts_min = prvMET_Measurement.watts_min;
 
-        xSemaphoreGive(configData_mutex, 0);
+        xSemaphoreGive(measureData_mutex);
         /* End of your code! */
 
         /* Send measurement data to display */
@@ -255,7 +266,11 @@ static void prvMET_UpdateMeter(void)
 
         /* Reset Time, do not forget to protect it */
         /* Add your code here! */
+        taskENTER_CRITICAL();
+        xTimerReset(meter_Timer,0); //Not Sure
+        taskEXIT_CRITICAL();
 
+        mbMessage = '\0';
         /* End of your code! */
     } 
     else if (mbMessage == 'f')
@@ -268,12 +283,12 @@ static void prvMET_UpdateMeter(void)
         }
         prvMET_DisplayColumn = 0;
 
-        /* Send row and coulmn to display */
+        /* Send row and column to display */
         message.type = MET2DISP_UpdateWindow;
         message.data.window.row = prvMET_DisplayRow;
         message.data.window.column = prvMET_DisplayColumn;
         /* Add your code here! */
-
+        mbMessage = '\0';
         /* End of your code! */
     }
     else if (mbMessage == 'r')
@@ -287,7 +302,7 @@ static void prvMET_UpdateMeter(void)
             message.data.window.row = prvMET_DisplayRow;
             message.data.window.column = prvMET_DisplayColumn;
             /* Add your code here! */
-
+            mbMessage = '\0';
             /* End of your code! */
         }
     }
@@ -296,12 +311,12 @@ static void prvMET_UpdateMeter(void)
         if (prvMET_DisplayRow < 6)
         {
             prvMET_DisplayColumn--;
-			/* Send row and coulmn to display */
+			/* Send row and column to display */
             message.type = MET2DISP_UpdateWindow;
             message.data.window.row = prvMET_DisplayRow;
             message.data.window.column = prvMET_DisplayColumn;
             /* Add your code here! */
-
+            mbMessage = '\0';
             /* End of your code! */
         }
     }
