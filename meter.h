@@ -5,7 +5,7 @@
 
 /* Define metering task priority */
 /* Add your code here! */
-
+#define 	METER_TASK_PRIORITY		1
 /* End of your code! */
 
 

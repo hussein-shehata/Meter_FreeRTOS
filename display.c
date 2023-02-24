@@ -59,7 +59,7 @@ void DISP_Init(void)
 
     /* Creat display queue */
      /* Add your code here! */
-     xMET2DISP_Queue=xQueueCreate(qMET2DISP_LENGTH_MESSAGES,sizeof(char[30]));
+     xMET2DISP_Queue = xQueueCreate(qMET2DISP_LENGTH_MESSAGES,sizeof(char[30]));
      /* End of your code! */
 
     /* Create display task */
