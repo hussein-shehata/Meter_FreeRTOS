@@ -104,7 +104,8 @@ static void prvMET_Task(void* pvParameters)
 
     /* Sync all tasks start  */
     /* Add your code here! */
-    /*--------------------------------h3mlha lsa ------------------------------*/
+
+    xEventGroupSync( xSyncEventGroup, ebBIT_MET, ebALL_SYNC_BITS, 0xffffffffUL ); //wait for max time
     /* End of your code! */
 
     /* Start meter timer */
@@ -158,6 +159,7 @@ static void prvMET_TimerCallback(TimerHandle_t xTimerHandle)
     message.data.measurement.watts_max = prvMET_Measurement.watts_max;
     message.data.measurement.watts_min = prvMET_Measurement.watts_min;
 
+    xQueueSend(xMET2DISP_Queue,&message,0);
 
     /* End of your code! */
 
@@ -224,10 +226,8 @@ static void prvMET_UpdateMeter(void)
     tMET2DISP_Message message;
     /* Wait for a message from push button task on the message buffer */
     /* Add your code here! */
-    while(mbMessage == '\0')
-    {
-    	// Infinite loop to wait for message from the push button
-    }
+    while(  !(xMessageBufferReceive( xPB2MET_MessageBuffer, ( void * ) mbMessage, sizeof( mbMessage ),
+    		pdMS_TO_TICKS( 20 ) ) > 0 ) )
     /* End of your code! */
     if (mbMessage == 'c')
     {
@@ -261,7 +261,7 @@ static void prvMET_UpdateMeter(void)
 
         /* Send measurement data to display */
         /* Add your code here! */
-
+        xQueueSend(xMET2DISP_Queue,&message,0);
         /* End of your code! */
 
         /* Reset Time, do not forget to protect it */
@@ -270,7 +270,6 @@ static void prvMET_UpdateMeter(void)
         xTimerReset(meter_Timer,0); //Not Sure
         taskEXIT_CRITICAL();
 
-        mbMessage = '\0';
         /* End of your code! */
     } 
     else if (mbMessage == 'f')
@@ -288,7 +287,7 @@ static void prvMET_UpdateMeter(void)
         message.data.window.row = prvMET_DisplayRow;
         message.data.window.column = prvMET_DisplayColumn;
         /* Add your code here! */
-        mbMessage = '\0';
+        xQueueSend(xMET2DISP_Queue,&message,0);
         /* End of your code! */
     }
     else if (mbMessage == 'r')
@@ -302,7 +301,7 @@ static void prvMET_UpdateMeter(void)
             message.data.window.row = prvMET_DisplayRow;
             message.data.window.column = prvMET_DisplayColumn;
             /* Add your code here! */
-            mbMessage = '\0';
+            xQueueSend(xMET2DISP_Queue,&message,0);
             /* End of your code! */
         }
     }
@@ -316,7 +315,7 @@ static void prvMET_UpdateMeter(void)
             message.data.window.row = prvMET_DisplayRow;
             message.data.window.column = prvMET_DisplayColumn;
             /* Add your code here! */
-            mbMessage = '\0';
+            xQueueSend(xMET2DISP_Queue,&message,0);
             /* End of your code! */
         }
     }
