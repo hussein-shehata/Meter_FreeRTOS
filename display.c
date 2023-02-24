@@ -59,7 +59,7 @@ void DISP_Init(void)
 
     /* Creat display queue */
      /* Add your code here! */
-     qh=xQueueCreate(20,sizeof(char[30]));
+     xMET2DISP_Queue=xQueueCreate(20,sizeof(char[30]));
      /* End of your code! */
 
     /* Create display task */
