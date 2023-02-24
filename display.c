@@ -75,15 +75,15 @@ static void prvDISP_Task(void * pvParameters)
     (void)pvParameters;
     /* Sync all tasks start  */
     /* Add your code here! */
-    xEventGroupSync( xSyncEventGroup, ebBIT_DISP, ebALL_SYNC_BITS, portMAX_DELAY );
+    xEventGroupSync( xSyncEventGroup, ebBIT_DISP, ebALL_SYNC_BITS, 0xffffffffUL );
     /* End of your code! */
 
     for (;;)
     {
         /* Wait for message from meter task  */
         /* Add your code here! */
-    	while(!(uxQueueMessagesWaiting(qh)));
-    	xQueueReceive(qh,&message,0);
+    	while(!(uxQueueMessagesWaiting(xMET2DISP_Queue)));
+    	xQueueReceive(xMET2DISP_Queue,&message,0);
         /* End of your code! */
 
         if (message.type == MET2DISP_UpdateWindow)
