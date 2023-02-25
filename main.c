@@ -7,7 +7,7 @@ int main(void)
 {
 	/* Initialize heap for FreeRTOS and application */
 	/* Add your code here! */
-
+	prvInitialiseHeap();
 	/* End of your code! */
 	PB_Init();
 	MET_Init();
