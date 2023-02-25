@@ -226,7 +226,7 @@ static void prvMET_UpdateMeter(void)
     tMET2DISP_Message message;
     /* Wait for a message from push button task on the message buffer */
     /* Add your code here! */
-    while(  !(xMessageBufferReceive( xPB2MET_MessageBuffer, ( void * ) mbMessage, sizeof( mbMessage ),
+    while(  !(xStreamBufferReceive( xPB2MET_MessageBuffer, ( void * ) mbMessage, sizeof( mbMessage ),
     		pdMS_TO_TICKS( 20 ) ) > 0 ) )
     /* End of your code! */
     if (mbMessage == 'c')

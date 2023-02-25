@@ -56,17 +56,18 @@ void PB_Init(void)
 
 	/* Create push buttons task */
 	/* Add your code here! */
-
+	xTaskCreate(prvPB_Task,"PBTask", 1024, NULL, PB_PRIORITY, NULL);
 	/* End of your code! */
 
 	/* Create push buttons task to meter task message buffer */
 	/* Add your code here! */
 
+	xPB2MET_MessageBuffer = xStreamBufferCreate(mbPB2MET_LENGTH_BYTES, 1);
 	/* End of your code! */
 
 	/* Create synch event group */
 	/* Add your code here! */
-
+	xSyncEventGroup = xEventGroupCreate();
 	/* End of your code! */
 
 }
@@ -102,12 +103,12 @@ static void prvPB_Task(void* pvParameters)
 
 	/* Sync all tasks start  */
 	/* Add your code here! */
-
+    xEventGroupSync( xSyncEventGroup, ebBIT_PB, ebALL_SYNC_BITS, 0xffffffffUL );
 	/* End of your code! */
 
 	/* Get system tick count */
 	/* Add your code here! */
-
+    xNextWakeTime = xTaskGetTickCount();
 	/* End of your code! */
 
 	for (;;)
@@ -115,7 +116,7 @@ static void prvPB_Task(void* pvParameters)
 		prvPB_Update();
 		/* delay for PB_PERIOD_MS*/
 		/* Add your code here! */
-
+		vTaskDelayUntil(&xNextWakeTime, xBlockTime);
 		/* End of your code! */
 
 	}
@@ -190,7 +191,7 @@ static void prvPB_Update(void)
 
 	/* Update and send messages to meter task */
 	/* Add your code here! */
-
+	xStreamBufferSend(xPB2MET_MessageBuffer, &message, sizeof(message) ,pdMS_TO_TICKS(10) );
 	/* End of your code! */
 }
 

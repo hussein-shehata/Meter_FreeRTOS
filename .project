@@ -34,7 +34,7 @@
 	<variableList>
 		<variable>
 			<name>FREERTOS_ROOT</name>
-			<value>file:/D:/Courses/Swift%20ACT/FreeRtos/Tools/FreeRTOSv10.2.1_191129</value>
+			<value>file:/C:/Users/MuhamedAbdallah-TRIX/Desktop/FreeRTOS/Tools/FreeRTOSv10.2.1_191129</value>
 		</variable>
 		<variable>
 			<name>hobba</name>
