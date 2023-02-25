@@ -46,7 +46,7 @@ void MET_Init(void)
     
     /* Protect reading configuration data from eeprom */
     /* Add your code here! */
-    xSemaphoreTake(configData_mutex, 0);
+    xSemaphoreTake(configData_mutex, portMAX_DELAY);
 
     prvMET_Configuration.zero = 0;
     prvMET_Configuration.gain = 1;
@@ -59,7 +59,7 @@ void MET_Init(void)
 
     /* Protect meter time and measurement data initialization */
     /* Add your code here! */
-    xSemaphoreTake(measureData_mutex, 0);
+    xSemaphoreTake(measureData_mutex, portMAX_DELAY);
     
     prvMET_TimeInHours = 0;
     prvMET_Seconds = 0;
@@ -80,7 +80,7 @@ void MET_Init(void)
 
     /* Create periodic timer every 1 second  */
     /* Add your code here! */
-    meter_Timer = xTimerCreate("Meter_Timer", pdMS_TO_TICKS(1000), 1, 100, prvMET_TimerCallback);
+    meter_Timer = xTimerCreate("Meter_Timer", xTimerPeriod, 1, 100, prvMET_TimerCallback);
     /* End of your code! */
 
     /* Set initial window */
@@ -124,7 +124,7 @@ void MET_GetConfiguration(tMET_Config * configuration)
 {
     /* Protect reading configuration data by any other task */
     /* Add your code here! */
-	xSemaphoreTake(configData_mutex, 0);
+	xSemaphoreTake(configData_mutex, portMAX_DELAY);
 
     configuration->zero = prvMET_Configuration.zero;
     configuration->gain = prvMET_Configuration.gain;
@@ -159,7 +159,7 @@ static void prvMET_TimerCallback(TimerHandle_t xTimerHandle)
     message.data.measurement.watts_max = prvMET_Measurement.watts_max;
     message.data.measurement.watts_min = prvMET_Measurement.watts_min;
 
-    xQueueSend(xMET2DISP_Queue,&message,0);
+    xQueueSend(xMET2DISP_Queue,&message,portMAX_DELAY);
 
     /* End of your code! */
 
@@ -226,14 +226,13 @@ static void prvMET_UpdateMeter(void)
     tMET2DISP_Message message;
     /* Wait for a message from push button task on the message buffer */
     /* Add your code here! */
-    while(  !(xStreamBufferReceive( xPB2MET_MessageBuffer, ( void * ) mbMessage, sizeof( mbMessage ),
-    		pdMS_TO_TICKS( 20 ) ) > 0 ) )
+    xStreamBufferReceive(xPB2MET_MessageBuffer, (void*)&mbMessage, sizeof(mbMessage), portMAX_DELAY);
     /* End of your code! */
     if (mbMessage == 'c')
     {
         /* Protect measurement data during clearing/sending */
         /* Add your code here! */
-        xSemaphoreTake(measureData_mutex, 0);
+        xSemaphoreTake(measureData_mutex, portMAX_DELAY);
         /* Clear measurements */
 
         prvMET_Measurement.watts = 0;
@@ -261,7 +260,7 @@ static void prvMET_UpdateMeter(void)
 
         /* Send measurement data to display */
         /* Add your code here! */
-        xQueueSend(xMET2DISP_Queue,&message,0);
+        xQueueSend(xMET2DISP_Queue,&message,portMAX_DELAY);
         /* End of your code! */
 
         /* Reset Time, do not forget to protect it */
@@ -287,7 +286,7 @@ static void prvMET_UpdateMeter(void)
         message.data.window.row = prvMET_DisplayRow;
         message.data.window.column = prvMET_DisplayColumn;
         /* Add your code here! */
-        xQueueSend(xMET2DISP_Queue,&message,0);
+        xQueueSend(xMET2DISP_Queue,&message,portMAX_DELAY);
         /* End of your code! */
     }
     else if (mbMessage == 'r')
@@ -301,7 +300,7 @@ static void prvMET_UpdateMeter(void)
             message.data.window.row = prvMET_DisplayRow;
             message.data.window.column = prvMET_DisplayColumn;
             /* Add your code here! */
-            xQueueSend(xMET2DISP_Queue,&message,0);
+            xQueueSend(xMET2DISP_Queue,&message,portMAX_DELAY);
             /* End of your code! */
         }
     }
@@ -315,7 +314,7 @@ static void prvMET_UpdateMeter(void)
             message.data.window.row = prvMET_DisplayRow;
             message.data.window.column = prvMET_DisplayColumn;
             /* Add your code here! */
-            xQueueSend(xMET2DISP_Queue,&message,0);
+            xQueueSend(xMET2DISP_Queue,&message,portMAX_DELAY);
             /* End of your code! */
         }
     }

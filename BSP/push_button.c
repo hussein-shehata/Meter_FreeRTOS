@@ -191,6 +191,26 @@ static void prvPB_Update(void)
 
 	/* Update and send messages to meter task */
 	/* Add your code here! */
+	 if (prvPB_Info[PB_Clear].state == PB_PrePressed)
+	 {
+		 message = 'c';
+	 }
+	 else if (prvPB_Info[PB_Function].state == PB_PrePressed)
+	 {
+		 message = 'f';
+	 }
+	 else if (prvPB_Info[PB_Right].state == PB_PrePressed)
+	 {
+		 message = 'r';
+	 }
+	 else if (prvPB_Info[PB_Left].state == PB_PrePressed)
+	 {
+		 message = 'l';
+	 }
+	 else
+	 {
+		 message = '\0';
+	 }
 	xStreamBufferSend(xPB2MET_MessageBuffer, &message, sizeof(message) ,pdMS_TO_TICKS(10) );
 	/* End of your code! */
 }
